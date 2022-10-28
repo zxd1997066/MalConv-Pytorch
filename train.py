@@ -141,8 +141,8 @@ history = {}
 history['tr_loss'] = []
 history['tr_acc'] = []
 
-log = open(log_file_path,'w')
-log.write('step,tr_loss, tr_acc, val_loss, val_acc, time\n')
+# log = open(log_file_path,'w')
+# log.write('step,tr_loss, tr_acc, val_loss, val_acc, time\n')
 
 valid_best_acc = 0.0
 total_step = 0
@@ -247,15 +247,16 @@ def evaluate(validloader, valid_best_acc, args):
         history['val_pred'].append(list(sigmoid(pred).cpu().float().data.numpy()))
         break
 
+    throughput = total_sample / total_time
+    print("inference Throughput:\t {:.2f} samples/s".format(throughput))
+    return
+
     print(log_msg.format(total_step, np.mean(history['tr_loss']), np.mean(history['tr_acc']),
                     np.mean(history['val_loss']), np.mean(history['val_acc']),step_cost_time),
           file=log,flush=True)
     
     print(valid_msg.format(total_step,np.mean(history['tr_loss']),np.mean(history['tr_acc']),
                            np.mean(history['val_loss']),np.mean(history['val_acc'])))
-    throughput = total_sample / total_time
-    print("inference Throughput:\t {:.2f} samples/s".format(throughput))
-    return
     if valid_best_acc < np.mean(history['val_acc']):
         valid_best_acc = np.mean(history['val_acc'])
         torch.save(malconv,chkpt_acc_path)
