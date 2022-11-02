@@ -18,12 +18,7 @@ function main {
     for model_name in ${model_name_list[@]}
     do
         # cache
-        if [ "${device}" != "cuda" ];then
-            device_id='cpu'
-        else
-            device_id=$(nvidia-smi -L | grep "$CUDA_VISIBLE_DEVICES" -B 50 |grep '^GPU' |tail -1 |sed 's/:.*//;s/[^0-9]//g')
-        fi
-        python train.py --num_iter 3 --num_warmup 1 \
+        python train.py --device ${device} --num_iter 3 --num_warmup 1 \
             --batch_size 1 --precision $precision \
             --channels_last $channels_last \
             ${addtion_options}
@@ -64,10 +59,9 @@ function generate_core {
             OOB_EXEC_HEADER+=" -C $(echo ${device_array[i]} |awk -F ';' '{print $1}') "
         else
             OOB_EXEC_HEADER=" CUDA_VISIBLE_DEVICES=${device_array[i]} "
-            device_id=$(nvidia-smi -L | grep "$CUDA_VISIBLE_DEVICES" -B 50 |grep '^GPU' |tail -1 |sed 's/:.*//;s/[^0-9]//g')
         fi
         printf " ${OOB_EXEC_HEADER} \
-            python train.py --num_iter $num_iter --num_warmup $num_warmup \
+            python train.py --device ${device} --num_iter $num_iter --num_warmup $num_warmup \
                 --batch_size $batch_size --precision $precision \
                 --channels_last $channels_last \
                 ${addtion_options} \
@@ -92,7 +86,7 @@ function generate_core_launcher {
                     --log_path ${log_dir} \
                     --ninstances ${#device_array[@]} \
                     --ncore_per_instance ${real_cores_per_instance} \
-            train.py --num_iter $num_iter --num_warmup $num_warmup \
+            train.py --device ${device} --num_iter $num_iter --num_warmup $num_warmup \
                 --batch_size $batch_size --precision $precision \
                 --channels_last $channels_last \
                 ${addtion_options} \
