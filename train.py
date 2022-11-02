@@ -31,14 +31,9 @@ print(args)
 
 
 # Load config file for experiment
-try:
-    config_path = args.config_path
-    seed = int(args.seed)
-    conf = yaml.load(open(config_path,'r'))
-except:
-    print('Usage: python3 run_exp.py <config file path> <seed>')
-    sys.exit()
-
+config_path = args.config_path
+seed = int(args.seed)
+conf = yaml.safe_load(open(config_path,'r'))
 
 exp_name = conf['exp_name']+'_sd_'+str(seed)
 print('Experiment:')
