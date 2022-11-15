@@ -221,6 +221,7 @@ def evaluate(validloader, valid_best_acc, args):
                     elapsed = time.time()
                     pred = malconv(exe_input)
                     loss = bce_loss(pred,label)
+                    if torch.cuda.is_available(): torch.cuda.synchronize()
                     elapsed = time.time() - elapsed
                     p.step()
                     print("Iteration: {}, inference time: {} sec.".format(i, elapsed), flush=True)
@@ -232,6 +233,7 @@ def evaluate(validloader, valid_best_acc, args):
                 elapsed = time.time()
                 pred = malconv(exe_input)
                 loss = bce_loss(pred,label)
+                if torch.cuda.is_available(): torch.cuda.synchronize()
                 elapsed = time.time() - elapsed
                 print("Iteration: {}, inference time: {} sec.".format(i, elapsed), flush=True)
                 if i >= args.num_warmup:
@@ -244,7 +246,7 @@ def evaluate(validloader, valid_best_acc, args):
         break
 
     throughput = total_sample / total_time
-    print("inference Throughput:\t {:.2f} samples/s".format(throughput))
+    print("inference Throughput: {} samples/s".format(throughput))
     return
 
     print(log_msg.format(total_step, np.mean(history['tr_loss']), np.mean(history['tr_acc']),
