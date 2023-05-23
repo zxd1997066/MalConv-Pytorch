@@ -287,7 +287,7 @@ if __name__ == "__main__":
             evaluate(validloader, valid_best_acc, args)
     elif args.precision == "float16":
         print("---- Use cuda AMP float16")
-        with torch.cuda.amp.autocast(enabled=True, dtype=torch.float16):
+        with torch.cpu.amp.autocast(enabled=True, dtype=torch.half):
             evaluate(validloader, valid_best_acc, args)
     else:
         evaluate(validloader, valid_best_acc, args)
