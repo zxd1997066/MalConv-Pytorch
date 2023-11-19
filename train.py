@@ -26,6 +26,10 @@ parser.add_argument('--channels_last', default=1, type=int, help='Use NHWC or no
 parser.add_argument('--profile', action='store_true', default=False, help='collect timeline')
 parser.add_argument('--num_iter', default=1, type=int, help='test iterations')
 parser.add_argument('--num_warmup', default=0, type=int, help='test warmup')
+parser.add_argument("--compile", action='store_true', default=False,
+                    help="enable torch.compile")
+parser.add_argument("--backend", type=str, default='inductor',
+                    help="enable torch.compile backend")
 args = parser.parse_args()
 print(args)
 
@@ -191,6 +195,8 @@ def evaluate(validloader, valid_best_acc, args):
 
     total_time = 0.0
     total_sample = 0
+    if args.compile:
+        malconv = torch.compile(malconv, backend=args.backend, options={"freezing": True})
     for _,val_batch_data in enumerate(validloader):
         cur_batch_size = val_batch_data[0].size(0)
 
