@@ -127,6 +127,8 @@ if args.channels_last:
     malconv = malconv.to(memory_format=torch.channels_last)
     print("---- Use NHWC model ")
 
+if args.compile:
+    malconv = torch.compile(malconv, backend=args.backend, options={"freezing": True})
 if use_gpu:
     malconv = malconv.cuda()
     bce_loss = bce_loss.cuda()
@@ -195,8 +197,7 @@ def evaluate(validloader, valid_best_acc, args):
 
     total_time = 0.0
     total_sample = 0
-    if args.compile:
-        malconv = torch.compile(malconv, backend=args.backend, options={"freezing": True})
+    
     for _,val_batch_data in enumerate(validloader):
         cur_batch_size = val_batch_data[0].size(0)
 
