@@ -30,6 +30,8 @@ parser.add_argument("--compile", action='store_true', default=False,
                     help="enable torch.compile")
 parser.add_argument("--backend", type=str, default='inductor',
                     help="enable torch.compile backend")
+parser.add_argument("--triton_cpu", action='store_true', default=False,
+                    help="enable triton_cpu")
 args = parser.parse_args()
 print(args)
 
@@ -122,7 +124,10 @@ malconv = MalConv(input_length=first_n_byte,window_size=window_size)
 bce_loss = nn.BCEWithLogitsLoss()
 adam_optim = optim.Adam([{'params':malconv.parameters()}],lr=learning_rate)
 sigmoid = nn.Sigmoid()
-
+if args.triton_cpu:
+    print("run with triton cpu backend")
+    import torch._inductor.config
+    torch._inductor.config.cpu_backend="triton"
 if args.channels_last:
     malconv = malconv.to(memory_format=torch.channels_last)
     print("---- Use NHWC model ")
